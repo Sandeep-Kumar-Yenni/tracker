@@ -1,17 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../utils/api';
+import { api, API_BASE_URL } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { Activity, FileText, Plus, Upload, Link2, Search, Download, Trash2, Heart, Scale, Thermometer, BriefcaseMedical, Edit, ChevronRight } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-
-// Get API base URL for file uploads
-const getApiBaseUrl = () => {
-    if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
-        return process.env.REACT_APP_API_URL;
-    }
-    return 'http://localhost:3003';
-};
-const API_BASE_URL = getApiBaseUrl();
 
 const MedicalTracker = () => {
     const { user } = useAuth();

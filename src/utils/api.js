@@ -3,15 +3,19 @@ import { encryptJSON, decryptJSON } from './encryption';
 
 // Get API URL from environment variable (set at build time) or use default
 const getApiBaseUrl = () => {
-    // Check for environment variable (available at build time in React)
+    // Check for environment variable (Vite)
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL === '/api' ? '' : import.meta.env.VITE_API_URL;
+    }
+    // Check for environment variable (React Scripts)
     if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
         return process.env.REACT_APP_API_URL;
     }
     // Fallback to default
-    return 'http://localhost:3003';
+    return typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:3003' : '';
 };
 
-const API_BASE_URL = getApiBaseUrl();
+export const API_BASE_URL = getApiBaseUrl();
 const OBFUSCATED_ROUTES = {
     auth: 'ath',
     admin: 'adm',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../utils/api';
 
 const Auth = () => {
     const [username, setUsername] = useState('');
@@ -14,16 +15,7 @@ const Auth = () => {
         setError('');
 
         try {
-            const res = await fetch(`http://localhost:3003/api/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ username, password })
-            });
-
-            const data = await res.json();
-
-            if (!res.ok) throw new Error(data.error || 'Something went wrong');
+            const data = await api.post('/api/auth/login', { username, password });
 
             // Backend returns the user data directly, tokens are set via HTTP-only cookies
             login(data);
