@@ -2,6 +2,47 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { format, parseISO } from 'date-fns';
 import { FileText, Plus, Search, Filter, Download, Trash2, X } from 'lucide-react';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+const cn = (...inputs) => twMerge(clsx(inputs));
+
+const AlertModal = ({ isOpen, onClose, title, message }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-2xl border border-gray-700 p-6 max-w-md w-full shadow-2xl">
+                <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+                <p className="text-gray-300 mb-6">{message}</p>
+                <div className="flex justify-end">
+                    <button onClick={onClose} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors font-medium">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-2xl border border-gray-700 p-6 max-w-md w-full shadow-2xl">
+                <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+                <p className="text-gray-300 mb-6">{message}</p>
+                <div className="flex justify-end gap-3">
+                    <button onClick={onClose} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition-colors font-medium">
+                        Cancel
+                    </button>
+                    <button onClick={onConfirm} className="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl transition-colors font-medium">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 
 const CATEGORIES = ['Certificate', 'ID', 'Tax', 'Receipt', 'Contract', 'Other'];
@@ -18,6 +59,15 @@ const DocumentVault = () => {
     // Modal state
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [uploadForm, setUploadForm] = useState({ name: '', category: 'Certificate', file: null });
+    
+    const [alertConfig, setAlertConfig] = useState({ isOpen: false, title: '', message: '' });
+    const [confirmConfig, setConfirmConfig] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
+
+    const showAlert = (title, message) => setAlertConfig({ isOpen: true, title, message });
+    const closeAlert = () => setAlertConfig({ isOpen: false, title: '', message: '' });
+    
+    const showConfirm = (title, message, onConfirm) => setConfirmConfig({ isOpen: true, title, message, onConfirm });
+    const closeConfirm = () => setConfirmConfig({ isOpen: false, title: '', message: '', onConfirm: null });
 
     useEffect(() => {
         fetchDocuments();
@@ -75,7 +125,7 @@ const DocumentVault = () => {
             }
         } catch (error) {
             console.error('Failed to upload document', error);
-            alert('Upload failed. Please try again.');
+            showAlert('Upload Failed', 'Upload failed. Please try again.');
         }
     };
 
@@ -89,7 +139,7 @@ const DocumentVault = () => {
             if (url) window.open(url, '_blank');
         } catch (error) {
             console.error('Failed to get download URL', error);
-            alert('Failed to access document.');
+            showAlert('Access Error', 'Failed to access document.');
         }
     };
 
@@ -106,16 +156,17 @@ const DocumentVault = () => {
         setSelectedIds(new Set()); // clear after download
     };
 
-    const handleBulkDelete = async () => {
-        if (!window.confirm(`Are you sure you want to delete ${selectedIds.size} document(s)?`)) return;
-
-        try {
-            await api.delete('/api/documents/bulk', { body: JSON.stringify({ ids: Array.from(selectedIds) }) });
-            fetchDocuments();
-        } catch (error) {
-            console.error('Failed to delete documents', error);
-            alert('Failed to delete some documents.');
-        }
+    const handleBulkDelete = () => {
+        showConfirm('Delete Documents', `Are you sure you want to delete ${selectedIds.size} document(s)?`, async () => {
+            try {
+                await api.delete('/api/documents/bulk', { body: JSON.stringify({ ids: Array.from(selectedIds) }) });
+                fetchDocuments();
+            } catch (error) {
+                console.error('Failed to delete documents', error);
+                showAlert('Error', 'Failed to delete some documents.');
+            }
+            closeConfirm();
+        });
     };
 
     const toggleSelection = (id) => {
@@ -143,6 +194,20 @@ const DocumentVault = () => {
 
     return (
         <div className="max-w-6xl mx-auto space-y-6 relative pb-20">
+            <AlertModal 
+                isOpen={alertConfig.isOpen} 
+                onClose={closeAlert} 
+                title={alertConfig.title} 
+                message={alertConfig.message} 
+            />
+            <ConfirmModal 
+                isOpen={confirmConfig.isOpen} 
+                onClose={closeConfirm} 
+                onConfirm={confirmConfig.onConfirm} 
+                title={confirmConfig.title} 
+                message={confirmConfig.message} 
+            />
+            
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-white mb-2">Document Vault</h1>

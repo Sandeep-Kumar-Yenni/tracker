@@ -3,6 +3,27 @@ import { api, API_BASE_URL } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { Activity, FileText, Plus, Upload, Link2, Search, Download, Trash2, Heart, Scale, Thermometer, BriefcaseMedical, Edit, ChevronRight } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+const cn = (...inputs) => twMerge(clsx(inputs));
+
+const AlertModal = ({ isOpen, onClose, title, message }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
+            <div className="bg-gray-800 rounded-2xl border border-gray-700 p-6 max-w-md w-full shadow-2xl">
+                <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+                <p className="text-gray-300 mb-6">{message}</p>
+                <div className="flex justify-end">
+                    <button onClick={onClose} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors font-medium">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const MedicalTracker = () => {
     const { user } = useAuth();
@@ -17,7 +38,12 @@ const MedicalTracker = () => {
     const [showVitalsModal, setShowVitalsModal] = useState(false);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showIssueModal, setShowIssueModal] = useState(false);
+    
+    const [alertConfig, setAlertConfig] = useState({ isOpen: false, title: '', message: '' });
     const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
+
+    const showAlert = (title, message) => setAlertConfig({ isOpen: true, title, message });
+    const closeAlert = () => setAlertConfig({ isOpen: false, title: '', message: '' });
 
     // Form States
     const [vitalsForm, setVitalsForm] = useState({ id: null, date: new Date().toISOString().split('T')[0], heart_rate: '', blood_pressure: '', weight: '', temperature: '', notes: '' });
@@ -131,7 +157,7 @@ const MedicalTracker = () => {
 
     const handleUploadRecord = async (e) => {
         e.preventDefault();
-        if (!uploadForm.file) return alert('Please select a file');
+        if (!uploadForm.file) return showAlert('Missing File', 'Please select a file');
 
         try {
             // 1. Get presigned URL
@@ -176,7 +202,7 @@ const MedicalTracker = () => {
             }
         } catch (error) {
             console.error('Failed to upload record', error);
-            alert('Upload failed. Please try again.');
+            showAlert('Upload Failed', 'Upload failed. Please try again.');
         }
     };
 
@@ -199,7 +225,7 @@ const MedicalTracker = () => {
         try {
             const { url } = await api.get(`/api/medical/records/${id}/share`);
             await navigator.clipboard.writeText(url);
-            alert('Secure sharing link copied to clipboard! (Valid for 1 hour)');
+            showAlert('Share Link Ready', 'Secure sharing link copied to clipboard! (Valid for 1 hour)');
         } catch (error) { console.error('Failed to generate share link', error); }
     };
 
@@ -215,7 +241,7 @@ const MedicalTracker = () => {
             window.open(url, '_blank');
         } catch (error) {
             console.error('Failed to get secure download link', error);
-            alert('Failed to access document. Access Denied or file missing.');
+            showAlert('Access Denied', 'Failed to access document. Access Denied or file missing.');
         }
     };
 
@@ -223,6 +249,13 @@ const MedicalTracker = () => {
 
     return (
         <div className="max-w-6xl mx-auto space-y-6">
+            <AlertModal 
+                isOpen={alertConfig.isOpen} 
+                onClose={closeAlert} 
+                title={alertConfig.title} 
+                message={alertConfig.message} 
+            />
+            
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-white mb-2">Medical Profile</h1>

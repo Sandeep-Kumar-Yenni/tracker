@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, CheckCircle, DollarSign, ListTodo, LogOut, Activity, Shield, Archive } from 'lucide-react';
+import { LayoutDashboard, CheckCircle, DollarSign, ListTodo, LogOut, Activity, Shield, Archive, Map } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -23,6 +23,7 @@ const Layout = () => {
         { path: '/todos', label: 'Todos', icon: ListTodo, permission: 'todos' },
         { path: '/medical', label: 'Medical', icon: Activity, permission: 'medical' },
         { path: '/documents', label: 'Vault', icon: Archive, permission: null },
+        { path: '/trips', label: 'Trips', icon: Map, permission: 'trips' },
     ];
 
     // Filter nav items based on user permissions

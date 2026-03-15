@@ -11,6 +11,9 @@ import TodoTracker from './pages/TodoTracker';
 import MedicalTracker from './pages/MedicalTracker';
 import AdminPanel from './pages/AdminPanel';
 import DocumentVault from './pages/DocumentVault';
+import TripTracker from './pages/TripTracker';
+import TripDetails from './pages/TripDetails';
+import SharedGallery from './pages/SharedGallery';
 
 // Protected route component that checks permissions
 const ProtectedRoute = ({ children, requiredPermission = null, requireAdmin = false }) => {
@@ -41,6 +44,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={!user ? <Auth /> : <Navigate to="/" />} />
+      <Route path="/shared/:token" element={<SharedGallery />} />
 
       <Route element={user ? <Layout /> : <Navigate to="/login" />}>
         <Route path="/" element={<Dashboard />} />
@@ -89,6 +93,22 @@ function App() {
           element={
             <ProtectedRoute>
               <DocumentVault />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trips"
+          element={
+            <ProtectedRoute requiredPermission="trips">
+              <TripTracker />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/trips/:id"
+          element={
+            <ProtectedRoute requiredPermission="trips">
+              <TripDetails />
             </ProtectedRoute>
           }
         />

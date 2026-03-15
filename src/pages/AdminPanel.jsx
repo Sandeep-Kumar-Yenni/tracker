@@ -17,7 +17,8 @@ const AdminPanel = () => {
             habits: true,
             finance: true,
             todos: true,
-            medical: true
+            medical: true,
+            trips: true
         },
         is_admin: false
     });
@@ -26,7 +27,8 @@ const AdminPanel = () => {
         { key: 'habits', label: 'Habits' },
         { key: 'finance', label: 'Finance' },
         { key: 'todos', label: 'Todos' },
-        { key: 'medical', label: 'Medical' }
+        { key: 'medical', label: 'Medical' },
+        { key: 'trips', label: 'Trips' }
     ];
 
     useEffect(() => {
@@ -64,7 +66,7 @@ const AdminPanel = () => {
             setFormData({
                 username: '',
                 password: '',
-                permissions: { habits: true, finance: true, todos: true, medical: true },
+                permissions: { habits: true, finance: true, todos: true, medical: true, trips: true },
                 is_admin: false
             });
             fetchUsers();
@@ -105,7 +107,7 @@ const AdminPanel = () => {
             setFormData({
                 username: '',
                 password: '',
-                permissions: { habits: true, finance: true, todos: true, medical: true },
+                permissions: { habits: true, finance: true, todos: true, medical: true, trips: true },
                 is_admin: false
             });
             fetchUsers();
@@ -114,15 +116,16 @@ const AdminPanel = () => {
         }
     };
 
-    const handleDeleteUser = async (userId) => {
-        if (!window.confirm('Are you sure you want to delete this user?')) return;
-
-        try {
-            await api.delete(`/api/admin/users/${userId}`);
-            fetchUsers();
-        } catch (err) {
-            setError(err.message || 'Error deleting user');
-        }
+    const handleDeleteUser = (userId) => {
+        showConfirm('Delete User', 'Are you sure you want to delete this user? This cannot be undone.', async () => {
+            try {
+                await api.delete(`/api/admin/users/${userId}`);
+                fetchUsers();
+            } catch (err) {
+                setError(err.message || 'Error deleting user');
+            }
+            closeConfirm();
+        });
     };
 
     const togglePermission = (key) => {
@@ -156,7 +159,7 @@ const AdminPanel = () => {
                         setFormData({
                             username: '',
                             password: '',
-                            permissions: { habits: true, finance: true, todos: true, medical: true },
+                            permissions: { habits: true, finance: true, todos: true, medical: true, trips: true },
                             is_admin: false
                         });
                     }}
@@ -190,12 +193,22 @@ const AdminPanel = () => {
                                 <tr key={u.id} className="hover:bg-gray-700/50 transition-colors">
                                     <td className="px-6 py-4">
                                         {editingUser === u.id ? (
-                                            <input
-                                                type="text"
-                                                value={formData.username}
-                                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                                                className="bg-gray-900 border border-gray-600 text-white px-3 py-1 rounded w-full"
-                                            />
+                                            <div className="space-y-2">
+                                                <input
+                                                    type="text"
+                                                    value={formData.username}
+                                                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                                    className="bg-gray-900 border border-gray-600 text-white px-3 py-1 rounded w-full"
+                                                    placeholder="Username"
+                                                />
+                                                <input
+                                                    type="password"
+                                                    value={formData.password}
+                                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                    className="bg-gray-900 border border-gray-600 text-white px-3 py-1 rounded w-full"
+                                                    placeholder="Reset Password"
+                                                />
+                                            </div>
                                         ) : (
                                             <div className="flex items-center gap-2">
                                                 <span className="text-white font-medium">{u.username}</span>
@@ -280,7 +293,7 @@ const AdminPanel = () => {
                                                             setFormData({
                                                                 username: '',
                                                                 password: '',
-                                                                permissions: { habits: true, finance: true, todos: true, medical: true },
+                                                                permissions: { habits: true, finance: true, todos: true, medical: true, trips: true },
                                                                 is_admin: false
                                                             });
                                                         }}
@@ -401,7 +414,7 @@ const AdminPanel = () => {
                                         setFormData({
                                             username: '',
                                             password: '',
-                                            permissions: { habits: true, finance: true, todos: true, medical: true },
+                                            permissions: { habits: true, finance: true, todos: true, medical: true, trips: true },
                                             is_admin: false
                                         });
                                     }}

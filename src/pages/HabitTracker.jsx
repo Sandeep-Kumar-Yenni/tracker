@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Plus, X, BarChart2, CheckSquare, AlertTriangle, History, Calendar } from 'lucide-react';
+import { Plus, X, BarChart2, CheckSquare, AlertTriangle, History, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, subDays, addDays, startOfMonth, endOfMonth, isToday } from 'date-fns';
 import HabitsTab from '../components/HabitsTab';
 import InsightsTab from '../components/InsightsTab';
@@ -224,7 +224,13 @@ const HabitTracker = () => {
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
                         <h1 className="text-3xl font-bold text-white">Habit Tracker</h1>
                         {activeTab === 'habits' && viewMode === 'daily' && (
-                            <div className="flex items-center gap-2 bg-gray-800/80 pl-3 pr-2 py-1.5 rounded-xl border border-gray-700/50 hover:border-indigo-500/50 transition-all shadow-sm">
+                            <div className="flex items-center gap-2 bg-gray-800/80 px-2 py-1.5 rounded-xl border border-gray-700/50 hover:border-indigo-500/50 transition-all shadow-sm">
+                                <button 
+                                    onClick={() => setSelectedDate(subDays(selectedDate, 1))}
+                                    className="p-1 hover:bg-gray-700 rounded-lg transition-colors text-gray-400 hover:text-indigo-400"
+                                >
+                                    <ChevronLeft size={18} />
+                                </button>
                                 <Calendar size={16} className="text-indigo-400" />
                                 <input
                                     type="date"
@@ -237,10 +243,16 @@ const HabitTracker = () => {
                                     className="bg-transparent border-none text-gray-200 text-sm focus:ring-0 outline-none cursor-pointer w-[120px] font-medium"
                                     style={{ colorScheme: 'dark' }}
                                 />
+                                <button 
+                                    onClick={() => setSelectedDate(addDays(selectedDate, 1))}
+                                    className="p-1 hover:bg-gray-700 rounded-lg transition-colors text-gray-400 hover:text-indigo-400"
+                                >
+                                    <ChevronRight size={18} />
+                                </button>
                                 {!isToday(selectedDate) && (
                                     <button
                                         onClick={() => setSelectedDate(new Date())}
-                                        className="text-xs ml-2 px-2 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 transition-colors border border-indigo-500/20"
+                                        className="text-xs ml-1 px-2 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30 transition-colors border border-indigo-500/20"
                                     >
                                         Today
                                     </button>

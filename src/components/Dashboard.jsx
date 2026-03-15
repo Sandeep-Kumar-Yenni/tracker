@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, TrendingUp, CheckCircle, ArrowRight } from 'lucide-react';
+import { Activity, TrendingUp, CheckCircle, ArrowRight, Map } from 'lucide-react';
 
 const Dashboard = () => {
     // We could fetch aggregate stats here, but for now let's just show quick links and static welcome
@@ -47,6 +47,13 @@ const Dashboard = () => {
                     </div>
                     <h2 className="text-2xl font-bold text-white mb-2">Todo</h2>
                     <p className="text-gray-400">Manage daily tasks and stay organized.</p>
+                </Link>
+                <Link to="/trips" className="group bg-gray-800 p-8 rounded-3xl border border-gray-700 hover:border-emerald-500/50 transition-all hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1">
+                    <div className="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                        <Map size={28} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Trips</h2>
+                    <p className="text-gray-400">Log and relive your travel memories.</p>
                 </Link>
             </div>
         </div>
